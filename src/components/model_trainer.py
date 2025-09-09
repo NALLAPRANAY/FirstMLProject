@@ -18,7 +18,7 @@ from dataclasses import dataclass
 
 @dataclass
 class ModelTrainerConfig:
-    model_obj_file_path=os.path.join("artifacts","model")
+    model_obj_file_path=os.path.join("artifacts","model.pkl")
 
 class ModelTrainer:
     def __init__(self):
@@ -45,18 +45,20 @@ class ModelTrainer:
                 }
             model_details: dict=evaluate_model(X_train=X_train,y_train=y_train,X_test=X_test,y_test=y_test,models=models)
            
-            best_model_score=max(model_details.values())
+            best_model_score=max(sorted(model_details.values()))
+
             best_model_name=list(model_details.keys())[list(model_details.values()).index(best_model_score)]
+            best_model=models[best_model_name]
             if best_model_score<0.6:
                 raise CustomException("Not Modle with better efficiency is found")
             logging.info("Model is trained")
-
+           
             save_obj(
                 file_path=self.model_trainer_config.model_obj_file_path,
-                obj=best_model_name
+                obj=best_model
             )
 
-            models=[best_model_name,best_model_score]
+            models=[best_model,best_model_score]
             return models
 
         except Exception as e:
